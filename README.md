@@ -1,0 +1,187 @@
+--// VINOM MM2 HUB
+--// ESP + كشف الادوار + AimBot
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+-- GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "VINOM"
+gui.Parent = game.CoreGui
+gui.ResetOnSpawn = false
+
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0,320,0,220)
+main.Position = UDim2.new(0.35,0,0.25,0)
+main.BackgroundColor3 = Color3.fromRGB(170,170,170)
+main.Active = true
+main.Draggable = true
+main.BorderSizePixel = 0
+
+Instance.new("UICorner", main).CornerRadius = UDim.new(0,20)
+
+local stroke = Instance.new("UIStroke", main)
+stroke.Thickness = 3
+stroke.Color = Color3.fromRGB(255,255,255)
+
+task.spawn(function()
+while true do
+TweenService:Create(stroke,TweenInfo.new(1),{
+Color = Color3.fromRGB(200,200,200)
+}):Play()
+wait(1)
+
+TweenService:Create(stroke,TweenInfo.new(1),{  
+		Color = Color3.fromRGB(255,255,255)  
+	}):Play()  
+	wait(1)  
+end
+
+end)
+
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1,0,0,45)
+title.BackgroundTransparency = 1
+title.Text = "VINOM"
+title.TextScaled = true
+title.Font = Enum.Font.GothamBlack
+title.TextColor3 = Color3.new(1,1,1)
+
+task.spawn(function()
+while true do
+TweenService:Create(title,TweenInfo.new(1),{
+TextColor3 = Color3.fromRGB(210,210,210)
+}):Play()
+wait(1)
+
+TweenService:Create(title,TweenInfo.new(1),{  
+		TextColor3 = Color3.fromRGB(255,255,255)  
+	}):Play()  
+	wait(1)  
+end
+
+end)
+
+local roles = Instance.new("TextLabel", main)
+roles.Position = UDim2.new(0,10,0,60)
+roles.Size = UDim2.new(1,-20,0,120)
+roles.BackgroundColor3 = Color3.fromRGB(120,120,120)
+roles.TextColor3 = Color3.new(1,1,1)
+roles.Font = Enum.Font.Code
+roles.TextSize = 18
+roles.TextWrapped = true
+roles.TextYAlignment = Enum.TextYAlignment.Top
+roles.RichText = true
+roles.Text = "Searching..."
+
+Instance.new("UICorner", roles).CornerRadius = UDim.new(0,15)
+
+local aim = false
+
+local button = Instance.new("TextButton", main)
+button.Size = UDim2.new(0.8,0,0,40)
+button.Position = UDim2.new(0.1,0,1,-50)
+button.BackgroundColor3 = Color3.fromRGB(220,220,220)
+button.Text = "AimBot : OFF"
+button.TextScaled = true
+button.Font = Enum.Font.GothamBold
+button.TextColor3 = Color3.new(1,1,1)
+
+Instance.new("UICorner", button).CornerRadius = UDim.new(0,15)
+
+button.MouseButton1Click:Connect(function()
+aim = not aim
+button.Text = "AimBot : "..(aim and "ON" or "OFF")
+end)
+
+local murderer = nil
+local sheriff = nil
+
+-- ESP
+function createESP(plr,color,text)
+if plr.Character and not plr.Character:FindFirstChild("VINOM_ESP") then
+
+local bill = Instance.new("BillboardGui")  
+	bill.Name = "VINOM_ESP"  
+	bill.Size = UDim2.new(0,100,0,40)  
+	bill.AlwaysOnTop = true  
+	bill.StudsOffset = Vector3.new(0,3,0)  
+	bill.Parent = plr.Character:WaitForChild("Head")  
+
+	local txt = Instance.new("TextLabel")  
+	txt.Parent = bill  
+	txt.Size = UDim2.new(1,0,1,0)  
+	txt.BackgroundTransparency = 1  
+	txt.Text = text  
+	txt.TextColor3 = color  
+	txt.TextStrokeTransparency = 0  
+	txt.Font = Enum.Font.GothamBold  
+	txt.TextScaled = true  
+end
+
+end
+
+function clearESP(plr)
+if plr.Character and plr.Character:FindFirstChild("Head") then
+local esp = plr.Character.Head:FindFirstChild("VINOM_ESP")
+if esp then
+esp:Destroy()
+end
+end
+end
+
+function updateRoles()
+murderer = nil
+sheriff = nil
+
+for _,v in pairs(Players:GetPlayers()) do  
+	clearESP(v)  
+
+	if v ~= LocalPlayer and v.Character then  
+
+		if v.Backpack:FindFirstChild("Knife")  
+		or v.Character:FindFirstChild("Knife") then  
+
+			murderer = v  
+			createESP(v,Color3.fromRGB(255,0,0),"MURDERER")  
+
+		elseif v.Backpack:FindFirstChild("Gun")  
+		or v.Character:FindFirstChild("Gun") then  
+
+			sheriff = v  
+			createESP(v,Color3.fromRGB(0,170,255),"SHERIFF")  
+
+		else  
+			createESP(v,Color3.fromRGB(0,255,100),"INNOCENT")  
+		end  
+	end  
+end  
+
+roles.Text =  
+'<font color="rgb(255,60,60)">🔪 Murderer : '.. tostring(murderer and murderer.Name or "Unknown") ..'</font>' ..  
+'\n\n<font color="rgb(80,170,255)">⭐ Sheriff : '.. tostring(sheriff and sheriff.Name or "Unknown") ..'</font>' ..  
+'\n\n<font color="rgb(80,255,120)">🙂 Innocent : Others</font>'
+
+end
+
+-- AIMBOT
+RunService.RenderStepped:Connect(function()
+
+updateRoles()  
+
+if aim and murderer and murderer.Character then  
+
+	local hrp = murderer.Character:FindFirstChild("HumanoidRootPart")  
+
+	if hrp then  
+		Camera.CFrame = CFrame.new(  
+			Camera.CFrame.Position,  
+			hrp.Position  
+		)  
+	end  
+end
+
+end)
