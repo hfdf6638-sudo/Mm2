@@ -1,5 +1,5 @@
 --// VINOM MM2 HUB
---// واجهة فضية متحركة + كشف الادوار + AimBot على القاتل
+--// واجهة فضية متحركة + كشف الادوار + AimBot
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -36,6 +36,7 @@ task.spawn(function()
 			Color = Color3.fromRGB(220,220,220)
 		}):Play()
 		wait(1)
+
 		TweenService:Create(stroke,TweenInfo.new(1),{
 			Color = Color3.fromRGB(255,255,255)
 		}):Play()
@@ -59,6 +60,7 @@ task.spawn(function()
 			TextColor3 = Color3.fromRGB(200,200,200)
 		}):Play()
 		wait(1)
+
 		TweenService:Create(title,TweenInfo.new(1),{
 			TextColor3 = Color3.fromRGB(255,255,255)
 		}):Play()
@@ -74,10 +76,10 @@ roles.Size = UDim2.new(1,-20,0,120)
 roles.BackgroundColor3 = Color3.fromRGB(140,140,140)
 roles.TextColor3 = Color3.fromRGB(255,255,255)
 roles.Font = Enum.Font.Code
-roles.TextScaled = false
 roles.TextSize = 18
 roles.TextWrapped = true
 roles.TextYAlignment = Enum.TextYAlignment.Top
+roles.RichText = true
 roles.Text = "Searching..."
 Instance.new("UICorner",roles).CornerRadius = UDim.new(0,15)
 
@@ -110,36 +112,41 @@ function updateRoles()
 
 	for _,v in pairs(Players:GetPlayers()) do
 		if v.Character then
-			if v.Backpack:FindFirstChild("Knife") or (v.Character:FindFirstChild("Knife")) then
+
+			if v.Backpack:FindFirstChild("Knife")
+			or v.Character:FindFirstChild("Knife") then
 				murderer = v.Name
 			end
 
-			if v.Backpack:FindFirstChild("Gun") or (v.Character:FindFirstChild("Gun")) then
+			if v.Backpack:FindFirstChild("Gun")
+			or v.Character:FindFirstChild("Gun") then
 				sheriff = v.Name
 			end
 		end
 	end
 
-	local innocent = "Unknown"
-
 	roles.Text =
-	"🔪 Murderer : ".. tostring(murderer) ..
-	"\n\n⭐ Sheriff : ".. tostring(sheriff) ..
-	"\n\n🙂 Innocent : Everyone Else"
+	'<font color="rgb(255,60,60)">🔪 Murderer : '.. tostring(murderer) ..'</font>' ..
+	'\n\n<font color="rgb(80,170,255)">⭐ Sheriff : '.. tostring(sheriff) ..'</font>' ..
+	'\n\n<font color="rgb(80,255,120)">🙂 Innocent : Everyone Else</font>'
 end
 
--- AimBot
+-- AimBot على البطن
 RunService.RenderStepped:Connect(function()
 	updateRoles()
 
 	if aim and murderer then
 		local target = Players:FindFirstChild(murderer)
 
-		if target and target.Character and target.Character:FindFirstChild("Head") then
+		if target
+		and target.Character
+		and target.Character:FindFirstChild("HumanoidRootPart") then
+
 			local cam = workspace.CurrentCamera
+
 			cam.CFrame = CFrame.new(
 				cam.CFrame.Position,
-				target.Character.Head.Position
+				target.Character.HumanoidRootPart.Position
 			)
 		end
 	end
