@@ -137,7 +137,25 @@ function updateRoles()
 	for _,v in pairs(Players:GetPlayers()) do
 		clearESP(v)
 
-		if v ~= LocalPlayer and v.Character then
+		if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
+
+	local head = v.Character.Head
+	local dist = (Camera.CFrame.Position - head.Position).Magnitude
+
+	if dist < 120 then
+		if v.Backpack:FindFirstChild("Knife") or v.Character:FindFirstChild("Knife") then
+			murderer = v
+			createESP(v,Color3.fromRGB(255,0,0),"MURDERER")
+
+		elseif v.Backpack:FindFirstChild("Gun") or v.Character:FindFirstChild("Gun") then
+			sheriff = v
+			createESP(v,Color3.fromRGB(0,170,255),"SHERIFF")
+
+		else
+			createESP(v,Color3.fromRGB(0,255,100),"INNOCENT")
+		end
+	end
+end
 
 			if v.Backpack:FindFirstChild("Knife")
 			or v.Character:FindFirstChild("Knife") then
